@@ -63,23 +63,34 @@ for user in user_data:
     username_password[username] = password
 
 # Attempt user login
-logged_in = False 
-while not logged_in:
-    print("LOGIN")
-    curr_user = input("Username: ")
-    curr_pass = input("Password: ")
-    if curr_user not in username_password.keys():
-        print("User does not exist")
-        continue
-    elif username_password[curr_user] != curr_pass:
-        print("Wrong password")
-        continue
-    else:
-        print("Login Successful!")
-        logged_in = True
+def user_login(username_password):
+    while True:
+        print("LOGIN")
+        curr_user = input("Username: ")
+        curr_pass = input("Password: ")
+        
+        if curr_user not in username_password.keys():
+            print("User does not exist")
+            continue
+        elif username_password[curr_user] != curr_pass:
+            print("Wrong password")
+            continue
+        else:
+            print("Login Successful!")
+            return curr_user  # Return the logged-in user's name
+
+# Main part of the code
+def main():
+    logged_in_user = None
+    
+    while not logged_in_user:
+        logged_in_user = user_login(username_password)  # Log in the user and store the current user's name
+    
+    # Once logged in, proceed to the main menu
+    main_menu(logged_in_user)
 
 # Main menu function
-def main_menu():
+def main_menu(curr_user):
     print()
     menu = input('''Select one of the following Options below:
 r - Registering a user
@@ -88,6 +99,7 @@ va - View all tasks
 vm - View my task
 ds - Display statistics
 gr - Generate reports
+sw - Switch user
 e - Exit
 : ''').lower()
 
@@ -203,7 +215,7 @@ e - Exit
                         try:
                             task_editor = int(input("Enter the task ID you'd like to edit or enter -1 to return to the main menu: "))
                             if task_editor == -1:
-                                return main_menu()
+                                return main_menu(curr_user)
                             elif task_editor not in editable_tasks:
                                 print("Please select from the tasks you are allowed to edit.")
                             else:
@@ -406,6 +418,11 @@ e - Exit
                 user_overview.write(f"User's incomplete tasks: \t\t {round(incomplete_percentage, 2)}%\n")
                 user_overview.write(f"User's overdue tasks: \t\t\t {round(overdue_percentage, 2)}%\n")
                 user_overview.write("_" * 50)
+    
+    def switch_user():
+        print("Switch User")
+        new_user = user_login(username_password)
+        return new_user
 
 
     # Menu options logic
@@ -424,18 +441,21 @@ e - Exit
         display_stats()
     elif menu == 'gr':
         generate_reports()
+    elif menu == 'sw':
+        curr_user = switch_user()
+        main_menu(curr_user)
     elif menu == 'e':
         print('Goodbye!!!')
         exit()
     else:
         print("\nYou have made a wrong choice, Please Try again")
-        main_menu()
+        main_menu(curr_user)
 
     # Continue option
     while True:
         user_input = input("Enter Yes to continue (main menu), No to exit: ").strip().lower()
         if user_input == "yes":
-            main_menu()
+            main_menu(curr_user)
             break
         elif user_input == "no":
             print("Exiting the program.")
@@ -444,5 +464,5 @@ e - Exit
             print("Invalid input. Please enter 'yes' or 'no'.")
 
 # Main part of the code
-if logged_in:
-    main_menu()
+if __name__ == "__main__":
+    main()
